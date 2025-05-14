@@ -14,16 +14,17 @@ const {
 // Importar validaciones
 const { validarNota, validarNotasMasivas } = require('../middlewares/validarNotas');
 
-// Rutas
-router.get('/', obtenerNotas);
-router.get('/:id', obtenerNotaPorId);
+// 🛡️ Importar middlewares de autenticación
+const { verificarToken, soloProfesores } = require('../middlewares/auth');
 
-router.post('/', validarNota, crearNota);
-router.post('/masivo', validarNotasMasivas, crearNotasMasivas);
+// Rutas protegidas
+router.get('/', verificarToken, obtenerNotas);
+router.get('/:id', verificarToken, obtenerNotaPorId);
 
-router.put('/:id', validarNota, actualizarNota);
-router.delete('/:id', eliminarNota);
+router.post('/', verificarToken, soloProfesores, validarNota, crearNota);
+router.post('/masivo', verificarToken, soloProfesores, validarNotasMasivas, crearNotasMasivas);
+
+router.put('/:id', verificarToken, soloProfesores, validarNota, actualizarNota);
+router.delete('/:id', verificarToken, soloProfesores, eliminarNota);
 
 module.exports = router;
-
-

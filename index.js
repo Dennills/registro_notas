@@ -73,3 +73,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
 });
+
+app.get('/api/health', (req, res) => {
+  res.status(200).send('OK');
+});

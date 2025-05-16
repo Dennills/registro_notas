@@ -17,6 +17,29 @@ app.use(cors());
 app.use(compression());
 app.use(express.json()); // Importante: después de helmet y cors
 
+app.use((req, res, next) => {
+  const methodsWithBody = ['POST', 'PUT', 'PATCH'];
+  if (methodsWithBody.includes(req.method) && req.headers['content-type']?.includes('application/json')) {
+    let data = '';
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => {
+      if (!data) {
+        return res.status(400).json({ ok: false, error: 'Se esperaba un body JSON pero estaba vacío.' });
+      }
+      try {
+        req.body = JSON.parse(data);
+        next();
+      } catch (err) {
+        return res.status(400).json({ ok: false, error: 'JSON inválido.' });
+      }
+    });
+  } else {
+    next();
+  }
+});
+
+
+
 // Conexión a MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Conectado a MongoDB Atlas'))
